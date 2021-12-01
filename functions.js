@@ -130,6 +130,13 @@ function getDateString(date = new Date()) {
 }
 
 /**
+   * パスワードをファイルに保存
+   */
+function savePassword(password) {
+  fs.writeFileSync(passwordFile, password);
+}
+
+/**
    * パスワードをファイルから取得
    */
 function loadPassword() {
@@ -149,5 +156,6 @@ module.exports = {
   convertDateFormat,
   getDateString,
   deleteEntry,
-  loadPassword
+  loadPassword,
+  savePassword
 };
