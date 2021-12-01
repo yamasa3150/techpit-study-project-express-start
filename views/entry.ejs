@@ -3,7 +3,9 @@
 
 <head>
   <meta charset="utf-8">
-  <title><%= entry.title %> | 担当者Aのブログ</title>
+  <title>
+    <%= entry.title %> | 担当者Aのブログ
+  </title>
   <link rel="stylesheet" href="/blog.css">
 </head>
 
@@ -15,14 +17,16 @@
 
     <article>
       <div class="entry">
-        <h2><%= entry.title %></h2>
+        <h2>
+          <%= entry.title %>
+        </h2>
         <div class="entry-content">
-          <div class="entry-date"><%=
-            entry.date.substr(0, 4) + '-' +
-            entry.date.substr(4, 2) + '-' +
-            entry.date.substr(6, 2)
-          %></div>
-          <p><%= entry.content %></p>
+          <div class="entry-date">
+            <%= convertDateFormat(entry.date) %>
+          </div>
+          <p>
+            <%= entry.content %>
+          </p>
         </div>
       </div>
     </article>
@@ -32,15 +36,19 @@
   <!-- サイドバー -->
   <div class="side-bar">
     <div>
-      <% sideList.forEach((listData) => { %>
-      <% const [yyyymm, listEntries] = listData; %>
-      <h3><%= yyyymm %></h3>
-      <ul>
-        <% listEntries.forEach((entry) => { %>
-        <li><a href="/blog/<%= entry.date %>"><%= entry.title %></a></li>
-        <% }) %>
-      </ul>
-      <% }) %>
+      <% sideList.forEach((listData)=> { %>
+        <% const [yyyymm, listEntries]=listData; %>
+          <h3>
+            <%= yyyymm %>
+          </h3>
+          <ul>
+            <% listEntries.forEach((entry)=> { %>
+              <li><a href="/blog/<%= entry.date %>">
+                  <%= entry.title %>
+                </a></li>
+              <% }) %>
+          </ul>
+          <% }) %>
     </div>
   </div>
 </body>
