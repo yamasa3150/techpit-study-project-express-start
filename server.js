@@ -12,6 +12,9 @@ app.use(express.static('public'));
 // テンプレートエンジン設定
 app.set('view engine', 'ejs');
 
+// テンプレート内で使用する関数の登録
+app.locals.convertDateFormat = func.convertDateFormat;
+
 // POSTリクエストのパラメータを取得するための設定
 app.use(express.urlencoded({ extended: false }));
 
@@ -55,6 +58,15 @@ app.get('/blog/:date', (request, response) => {
     entry,
     sideList
   });
+});
+
+app.get('/admin/', (request, response) => {
+  // ブログ記事ファイル一覧取得
+  const files = func.getEntryFiles();
+  // メインコンテンツに表示するブログ記事
+  const entries = func.getEntries(files);
+
+  response.render('admin', { entries });
 });
 
 app.get('/admin/edit', (request, response) => {
