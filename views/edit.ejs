@@ -3,7 +3,9 @@
 
 <head>
   <meta charset="utf-8">
-  <title>記事の新規投稿 | 管理者用ページ</title>
+  <title>
+    <%= pageTitle %> | 管理者用ページ
+  </title>
   <link rel="stylesheet" href="/admin.css">
 </head>
 
@@ -11,7 +13,9 @@
   <h1>管理者用ページ</h1>
 
   <section>
-    <h2>記事の新規投稿</h2>
+    <h2>
+      <%= pageTitle %>
+    </h2>
     <form name="edit" action="/admin/post_entry" method="post">
       <div>
         <h3>タイトル</h3>
@@ -24,7 +28,7 @@
       <div class="form-buttons">
         <input type="hidden" name="date" value="<%= entry.date %>">
         <input type="submit" value="送信">
-        <a href="/blog/">戻る</a>
+        <a href="/admin/">戻る</a>
       </div>
     </form>
   </section>
