@@ -70,17 +70,29 @@ app.get('/admin/', (request, response) => {
 });
 
 app.get('/admin/edit', (request, response) => {
-  response.render('edit');
-});
-
-app.post('/admin/post_entry', (request, response) => {
   const date = new Date();
   const ymd = [
     date.getFullYear(),
     ('0' + (date.getMonth() + 1)).substr(-2),
     ('0' + date.getDate()).substr(-2)
   ].join('');
-  func.saveEntry(ymd, request.body.title, request.body.content);
+
+  // 新規投稿の場合は記事投稿ページの内容はすべて空(dateは自動設定)
+  let entry = {
+    date: ymd,
+    title: '',
+    content: ''
+  };
+
+  // dateパラメータありの場合は記事の編集なので該当の記事データを取得してセットする
+  if (request.query.date) {
+    entry = func.fileNameToEntry(request.query.date + '.txt', false);
+  }
+  response.render('edit', { entry });
+});
+
+app.post('/admin/post_entry', (request, response) => {
+  func.saveEntry(request.body.date, request.body.title, request.body.content)
   response.redirect('/blog/');
 });
 
