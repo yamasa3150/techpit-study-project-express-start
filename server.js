@@ -4,6 +4,9 @@ const express = require('express');
 // パスワードハッシュ化パッケージを読み込み
 const bcrypt = require('bcryptjs');
 
+// ランダム文字列生成パッケージを読み込み
+const cryptoRandomString = require('crypto-random-string');
+
 // 同じフォルダにあるfunctions.jsを読み込み
 const func = require('./functions');
 
@@ -21,6 +24,10 @@ app.locals.convertDateFormat = func.convertDateFormat;
 
 // POSTリクエストのパラメータを取得するための設定
 app.use(express.urlencoded({ extended: false }));
+
+// ブラウザから送信されてきたクッキーを取得するための設定
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
 
 // ルーティング設定
 app.get('/blog/', (request, response) => {
@@ -73,10 +80,31 @@ app.get('/login', (request, response) => {
 app.post('/auth', (request, response) => {
   const hashed = func.loadPassword();
   if (hashed && bcrypt.compareSync(request.body.password, hashed)) {
-    response.cookie('session', 'login_ok');
+    const sessionId = cryptoRandomString({
+      length: 100
+    });
+    func.saveSessionId(sessionId);
+    response.cookie('session', sessionId, {
+      httpOnly: true
+    });
     response.redirect('/admin/');
   } else {
     response.redirect('/login?failed=1');
+  }
+});
+
+app.get('/logout', (request, response) => {
+  func.deleteSessionId();
+  response.redirect('/login');
+});
+
+app.use('/admin/', (request, response, next) => {
+  // ログインセッションIDがクッキーに設定されているものと一致しなければログイン画面に戻す
+  const sessionId = func.loadSessionId();
+  if (sessionId && request.cookies.session === sessionId) {
+    next();
+  } else {
+    response.redirect('/login');
   }
 });
 
