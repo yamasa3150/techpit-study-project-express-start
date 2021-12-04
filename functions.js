@@ -6,6 +6,9 @@ const path = require('path');
 // ブログ記事テキストファイルが保存されているフォルダ
 const entriesDir = path.join(__dirname, 'entries');
 
+// 画像ファイル保存先フォルダ
+const imagesDir = path.join(__dirname, 'public/images');
+
 // セッションID保存ファイル
 const sessionFile = path.join(__dirname, '/.session');
 
@@ -32,6 +35,7 @@ function fileNameToEntry(file, cut) {
     return line.trim();
   });
   const date = file.substr(0, 8);
+  const image = findImage(date);
   const title = lines.shift();
   let content = lines.join('\n');
 
@@ -40,7 +44,7 @@ function fileNameToEntry(file, cut) {
     content = content.substr(0, 100) + '...';
   }
 
-  return { date, title, content };
+  return { date, title, content, image };
 }
 
 /**
@@ -102,7 +106,10 @@ function getSideList(entries) {
 /**
   * ブログ記事データをテキスト化してentriesフォルダに保存する
   */
-function saveEntry(date, title, content) {
+function saveEntry(date, title, content, imgdel) {
+  if (imgdel) {
+    deleteImage(date);
+  }
   fs.writeFileSync(path.join(entriesDir, date + '.txt'), title + '\n' + content);
 }
 
@@ -110,6 +117,9 @@ function saveEntry(date, title, content) {
    * 指定したブログ記事データテキストをentriesフォルダから削除する
    */
 function deleteEntry(date) {
+  if (deleteImage(date)) {
+    fs.rmdirSync(path.join(imagesDir, date));
+  }
   fs.unlinkSync(path.join(entriesDir, date + '.txt'));
 }
 
@@ -173,6 +183,49 @@ function deleteSessionId(sessionId) {
   fs.unlinkSync(sessionFile);
 }
 
+/**
+   * ブログ記事に紐づく画像ファイルを格納するフォルダを作成する
+   */
+function createImageDir(date) {
+  const targetDir = path.join(imagesDir, date);
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, {
+      recursive: true
+    });
+  }
+  return targetDir;
+}
+
+/**
+   * ブログ記事に紐づく画像ファイルを取得する
+   */
+function findImage(date) {
+  const targetDir = path.join(imagesDir, date);
+  if (!fs.existsSync(targetDir)) {
+    return null;
+  }
+  const files = fs.readdirSync(targetDir);
+  if (files.length === 0) {
+    return null;
+  }
+  return files[0];
+}
+
+/**
+   * ブログ記事に紐づけられている画像ファイルを削除する
+   */
+function deleteImage(date) {
+  const targetDir = path.join(imagesDir, date);
+  if (!fs.existsSync(targetDir)) {
+    return false;
+  }
+  const files = fs.readdirSync(targetDir);
+  files.forEach((file) => {
+    fs.unlinkSync(path.join(targetDir, file));
+  });
+  return true;
+}
+
 // 外部ファイルから参照できる関数の公開設定
 module.exports = {
   getEntryFiles,
@@ -187,5 +240,8 @@ module.exports = {
   savePassword,
   saveSessionId,
   loadSessionId,
-  deleteSessionId
+  deleteSessionId,
+  createImageDir,
+  findImage,
+  deleteImage
 };
